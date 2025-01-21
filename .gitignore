@@ -35,3 +35,30 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Logs ###
+*.log
+logs/
+
+### OS Generated Files ###
+.DS_Store
+Thumbs.db
+
+### Temporary Files ###
+*.tmp
+*.temp
+
+### Application Configuration ###
+application.yml
+application-*.yml
+
+### Maven ###
+.mvn/
+!**/src/main/**/.mvn/
+!**/src/test/**/.mvn/
+
+### Other IDE or Tool Configurations ###
+*.swp
+*.swo
+*.bak
+*.orig
