@@ -1,12 +1,20 @@
 package com.master.side.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
 @Table(name = "comment")
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class Comment {
 
     @Id

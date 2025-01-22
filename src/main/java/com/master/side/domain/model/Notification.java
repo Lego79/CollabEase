@@ -1,11 +1,19 @@
 package com.master.side.domain.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "notification")
+@Getter
+@Setter
+@AllArgsConstructor
+@Builder
 public class Notification {
 
     @Id

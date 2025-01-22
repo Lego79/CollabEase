@@ -1,12 +1,18 @@
 package com.master.side.domain.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
 @Table(name = "board")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Board {
 
     @Id

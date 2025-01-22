@@ -1,4 +1,4 @@
-package com.master.side.config.securityConfig;
+package com.master.side.infrastructure.securityConfig;
 
 import com.master.side.security.JwtAuthenticationFilter;
 import com.master.side.security.JwtTokenProvider;
