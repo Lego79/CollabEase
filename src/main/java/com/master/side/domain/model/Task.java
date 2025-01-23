@@ -25,6 +25,11 @@ public class Task {
     @JoinColumn(name = "member_id", nullable = false, foreignKey = @ForeignKey(name = "fk_task_member"))
     private Member member;
 
+    // Many Tasks belong to one Board.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false, foreignKey = @ForeignKey(name = "fk_task_board"))
+    private Board board;
+
     @Column(nullable = false, length = 255)
     private String title;
 

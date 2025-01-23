@@ -1,6 +1,6 @@
 package com.master.side.presentation.controller;
 
-import com.master.side.application.dto.TaskResponseDto;
+import com.master.side.application.dto.CombinedTaskBoardCommentDto;
 import com.master.side.application.service.TaskService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +24,8 @@ public class TaskController {
      * 전체 Task 목록 조회
      */
     @GetMapping
-    public ResponseEntity<List<TaskResponseDto>> getAllTasks() {
-        List<TaskResponseDto> tasks = taskService.getAllTasks();
+    public ResponseEntity<List<CombinedTaskBoardCommentDto>> getAllTasks() {
+        List<CombinedTaskBoardCommentDto> tasks = taskService.getAllCombinedData();
         return ResponseEntity.ok(tasks);
     }
 
@@ -33,8 +33,9 @@ public class TaskController {
      * 단일 Task 조회
      */
     @GetMapping("/{taskId}")
-    public ResponseEntity<TaskResponseDto> getTaskById(@PathVariable Long taskId) {
-        TaskResponseDto task = taskService.getTaskById(taskId);
+    public ResponseEntity<CombinedTaskBoardCommentDto> getTaskById(@PathVariable("taskId") Long taskId) {
+        CombinedTaskBoardCommentDto task = taskService.getCombinedDataByTaskId(taskId);
         return ResponseEntity.ok(task);
     }
+
 }

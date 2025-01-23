@@ -1,7 +1,9 @@
 package com.master.side.application.service;
 
 
-import com.master.side.application.dto.TaskResponseDto;
+import com.master.side.application.dto.CombinedTaskBoardCommentDto;
+import com.master.side.domain.model.Board;
+import com.master.side.domain.model.Comment;
 import com.master.side.domain.model.Member;
 import com.master.side.domain.model.Task;
 import com.master.side.domain.repository.TaskRepository;
@@ -22,41 +24,74 @@ public class TaskService {
     }
 
     /**
-     * 전체 Task 목록을 조회하여 DTO로 변환 후 반환
+     * 전체 Task 목록을 조회하여 Combined DTO로 변환 후 반환
      */
-    public List<TaskResponseDto> getAllTasks() {
+    public List<CombinedTaskBoardCommentDto> getAllCombinedData() {
         List<Task> tasks = taskRepository.findAll();
         return tasks.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+                .map(this::convertToCombinedDto)
+                .toList();
     }
 
     /**
-     * 단일 Task 조회
+     * 단일 Task 조회 후 Combined DTO로 변환
      */
-    public TaskResponseDto getTaskById(Long taskId) {
+    public CombinedTaskBoardCommentDto getCombinedDataByTaskId(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 Task를 찾을 수 없습니다. ID: " + taskId));
-        return convertToDto(task);
+        return convertToCombinedDto(task);
     }
 
     /**
-     * Task -> TaskResponseDto 변환 메서드
+     * Task -> CombinedTaskBoardCommentDto 변환 메서드
      */
-    private TaskResponseDto convertToDto(Task task) {
-        Member member = task.getMember(); // @ManyToOne 관계로 설정되어 있다고 가정
-        return new TaskResponseDto(
-                task.getId(),
-                member.getMemberId(),
-                member.getUsername(),
-                member.getNickname(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getStartDate().toLocalDateTime(),
-                task.getEndDate() != null ? task.getEndDate().toLocalDateTime() : null,
-                task.getStatus(),
-                task.getCreatedAt().toLocalDateTime(),
-                task.getUpdatedAt().toLocalDateTime()
-        );
+    private CombinedTaskBoardCommentDto convertToCombinedDto(Task task) {
+        Member member = task.getMember();
+        Board board = task.getBoard();
+        List<CombinedTaskBoardCommentDto.CommentDto> commentDtos = board.getComments().stream()
+                .map(this::convertCommentToDto)
+                .collect(Collectors.toList());
+
+        return CombinedTaskBoardCommentDto.builder()
+                // Task 정보
+                .taskId(task.getId())
+                .taskTitle(task.getTitle())
+                .taskDescription(task.getDescription())
+                .taskStartDate(task.getStartDate().toLocalDateTime())
+                .taskEndDate(task.getEndDate() != null ? task.getEndDate().toLocalDateTime() : null)
+                .taskStatus(task.getStatus())
+                .taskCreatedAt(task.getCreatedAt().toLocalDateTime())
+                .taskUpdatedAt(task.getUpdatedAt().toLocalDateTime())
+
+                // Board 정보
+                .boardId(board.getId())
+                .boardTitle(board.getTitle())
+                .boardContent(board.getContent())
+                .boardViewCount(board.getViewCount())
+                .boardCreatedAt(board.getCreatedAt().toLocalDateTime())
+                .boardUpdatedAt(board.getUpdatedAt().toLocalDateTime())
+
+                // Comment 정보
+                .comments(commentDtos)
+
+                // User 정보
+                .username(member.getUsername())
+                .nickname(member.getNickname())
+                .build();
+    }
+
+    /**
+     * Comment -> CommentDto 변환 메서드
+     */
+    private CombinedTaskBoardCommentDto.CommentDto convertCommentToDto(Comment comment) {
+        return CombinedTaskBoardCommentDto.CommentDto.builder()
+                .commentId(comment.getId())
+                .commentContent(comment.getContent())
+                .commenterUsername(comment.getMember().getUsername())
+                .commentCreatedAt(comment.getCreatedAt().toLocalDateTime())
+                .replies(comment.getReplies().stream()
+                        .map(this::convertCommentToDto)
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

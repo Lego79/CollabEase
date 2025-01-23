@@ -1,7 +1,7 @@
 package com.master.side.configuration.member.service.impl;
 
-import com.master.side.common.repository.MemberRepository;
 import com.master.side.configuration.member.service.MemberService;
+import com.master.side.domain.repository.MemberRepository;
 import com.master.side.security.JwtToken;
 import com.master.side.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;

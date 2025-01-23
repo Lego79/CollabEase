@@ -1,7 +1,7 @@
 package com.master.side.security;
 
-import com.master.side.common.entitiy.Member;
-import com.master.side.common.repository.MemberRepository;
+import com.master.side.domain.model.Member;
+import com.master.side.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

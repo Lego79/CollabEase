@@ -1,6 +1,6 @@
 package com.master.side.security.util;
 
-import com.master.side.common.entitiy.Member;
+import com.master.side.domain.model.Member;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 

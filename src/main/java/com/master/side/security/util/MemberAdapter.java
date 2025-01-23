@@ -1,6 +1,6 @@
 package com.master.side.security.util;
 
-import com.master.side.common.entitiy.Member;
+import com.master.side.domain.model.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
