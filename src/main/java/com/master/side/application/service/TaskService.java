@@ -131,4 +131,173 @@ public class TaskService {
 //
 //    스택 - ㅡㅡㅡ 보고 가는게 낫지 않나
 
+    //할일 - 프론트엔드 토큰으로 헤더에 담아서 접근할 수 있께, 로그인 후에
+    //
+// src/types/TaskTypes.ts
+//    export interface TaskCommentReply {
+//        commentId: number;
+//        commentContent: string;
+//        commenterUsername: string;
+//        commentCreatedAt: string;
+//        replies: TaskCommentReply[];
+//    }
+//
+//    export interface TaskComment {
+//        commentId: number;
+//        commentContent: string;
+//        commenterUsername: string;
+//        commentCreatedAt: string;
+//        replies: TaskCommentReply[];
+//    }
+//
+//    export interface TaskData {
+//        taskId: number;
+//        taskTitle: string;
+//        taskDescription: string;
+//        taskStartDate: string;
+//        taskEndDate: string;
+//        taskStatus: string;
+//        taskCreatedAt: string;
+//        taskUpdatedAt: string;
+//        boardId: number;
+//        boardTitle: string;
+//        boardContent: string;
+//        boardViewCount: number;
+//        boardCreatedAt: string;
+//        boardUpdatedAt: string;
+//        comments: TaskComment[];
+//        username: string;
+//        nickname: string;
+//    }
+
+    // src/components/Board.tsx
+//
+//    // src/types/BoardTypes.ts
+//    export interface CardItem {
+//        id: string;
+//        title: string;
+//        content: string;
+//    }
+//
+//    export interface ColumnData {
+//        id: string;
+//        title: string;
+//        cards: CardItem[];
+//    }
+//import React, { useEffect, useState } from 'react';
+//import { DragDropContext, DropResult } from '@hello-pangea/dnd';
+//import styled from 'styled-components';
+//import Column from './Column';
+//import { TaskData } from '../types/TaskTypes';
+//import { CardItem, ColumnData } from '../types/BoardTypes';
+//
+//const BoardContainer = styled.div`
+//    display: flex;
+//    align-items: flex-start;
+//    padding: 20px;
+//    background-color: #0079bf;
+//    min-height: 100vh;
+//    overflow-x: auto;
+//`;
+//
+//const Board: React.FC = () => {
+//  const [columns, setColumns] = useState<ColumnData[]>([]);
+//
+//        // 1) API 호출
+//        useEffect(() => {
+//    const fetchTasks = async () => {
+//      const response = await fetch('http://localhost:8080/api/tasks');
+//      const data: TaskData[] = await response.json();
+//
+//            // 2) 상태별로 카드 아이템 생성
+//      const todoCards: CardItem[] = data
+//                    .filter(task => task.taskStatus === 'PENDING')
+//        .map(task => ({
+//                    id: String(task.taskId),
+//                    title: task.taskTitle,
+//                    content: task.taskDescription
+//        }));
+//
+//      const inProgressCards: CardItem[] = data
+//                    .filter(task => task.taskStatus === 'IN_PROGRESS')
+//        .map(task => ({
+//                    id: String(task.taskId),
+//                    title: task.taskTitle,
+//                    content: task.taskDescription
+//        }));
+//
+//      const doneCards: CardItem[] = data
+//                    .filter(task => task.taskStatus === 'COMPLETED')
+//        .map(task => ({
+//                    id: String(task.taskId),
+//                    title: task.taskTitle,
+//                    content: task.taskDescription
+//        }));
+//
+//            // 3) 컬럼 리스트 준비
+//      const newColumns: ColumnData[] = [
+//            { id: 'todo', title: '할 일', cards: todoCards },
+//            { id: 'in-progress', title: '진행 중', cards: inProgressCards },
+//            { id: 'done', title: '완료', cards: doneCards }
+//      ];
+//
+//            setColumns(newColumns);
+//        };
+//
+//        fetchTasks();
+//  }, []);
+//
+//        // 4) 드래그 앤 드롭 처리
+//  const onDragEnd = (result: DropResult) => {
+//    const { destination, source } = result;
+//            if (!destination) return;
+//            if (
+//                    destination.droppableId === source.droppableId &&
+//                            destination.index === source.index
+//            ) {
+//                return;
+//            }
+//
+//            // 현재 컬럼, 타겟 컬럼 찾기
+//    const sourceColumn = columns.find(col => col.id === source.droppableId);
+//    const destColumn = columns.find(col => col.id === destination.droppableId);
+//            if (!sourceColumn || !destColumn) return;
+//
+//            // 원본/대상 카드 배열 복제
+//    const newColumns = [...columns];
+//    const sourceCards = [...sourceColumn.cards];
+//    const destCards =
+//                    sourceColumn.id === destColumn.id ? sourceCards : [...destColumn.cards];
+//
+//            // 카드 이동
+//    const [movedCard] = sourceCards.splice(source.index, 1);
+//            destCards.splice(destination.index, 0, movedCard);
+//
+//            // 컬럼에 새 카드 배열 갱신
+//            newColumns.forEach(col => {
+//            if (col.id === sourceColumn.id) {
+//                col.cards = sourceCards;
+//            }
+//            if (col.id === destColumn.id) {
+//                col.cards = destCards;
+//            }
+//    });
+//
+//            setColumns(newColumns);
+//        };
+//
+//        return (
+//                <DragDropContext onDragEnd={onDragEnd}>
+//      <BoardContainer>
+//                {columns.map(column => (
+//                        <Column key={column.id} column={column} />
+//        ))}
+//      </BoardContainer>
+//    </DragDropContext>
+//  );
+//    };
+//
+//    export default Board;
+
+
 }
