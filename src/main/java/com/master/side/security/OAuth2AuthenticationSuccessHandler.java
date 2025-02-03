@@ -2,7 +2,7 @@ package com.master.side.security;
 
 import com.master.side.application.service.MemberService;
 import com.master.side.domain.model.Member;
-import com.master.side.util.JwtUtil;
+import com.master.side.security.util.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,16 +40,17 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String name = oAuth2User.getAttribute("name");
         log.info("OAuth2 사용자 - email: {}, name: {}", email, name);
 
-        // 데이터베이스 처리 및 신규 등록 여부 확인
+        // 데이터베이스에서 회원을 조회하거나 신규 등록
         Member member = memberService.processOAuthPostLogin(email, name);
         log.info("Member 처리 완료: {}", member);
 
-        // JWT 토큰 생성
+        // JWT 토큰 생성 (여기서는 access token만 생성)
         String token = jwtUtil.generateToken(member.getEmail());
         log.info("JWT 토큰 생성: {}", token);
 
-        response.setContentType("application/json");
-        response.getWriter().write("{\"token\": \"" + token + "\"}");
-        response.getWriter().flush();
+        // 프론트엔드의 /board 페이지로 리다이렉트하면서, 토큰을 쿼리 파라미터로 전달
+        String redirectUrl = "http://localhost:8888/oauth-redirect?token=" + token;
+        log.info("프론트엔드로 리다이렉트: {}", redirectUrl);
+        response.sendRedirect(redirectUrl);
     }
 }

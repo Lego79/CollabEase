@@ -1,6 +1,6 @@
 package com.master.side.security;
 
-import com.master.side.util.JwtUtil;
+import com.master.side.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

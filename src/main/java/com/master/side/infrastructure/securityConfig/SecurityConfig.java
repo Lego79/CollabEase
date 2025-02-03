@@ -3,6 +3,7 @@ package com.master.side.infrastructure.securityConfig;
 
 import com.master.side.security.JwtAuthenticationFilter;
 import com.master.side.security.OAuth2AuthenticationSuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,13 +28,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                // 기존 설정과 동일하게 csrf 비활성화 및 stateless 세션 관리
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // URL별 접근 권한 설정: 기존 oauth2 관련 경로는 permitAll, 추가로 /api/** 요청은 인증 필요
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/login/**", "/oauth2/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
                 )
+                // 인증 실패 시 응답 처리 (401 에러)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((req, res, authException) -> {
+                            res.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
+                        })
+                )
+                // OAuth2 로그인 설정
                 .oauth2Login(oauth2 -> oauth2
+                        .redirectionEndpoint(redirection -> redirection
+                                .baseUri("/login/oauth/google")
+                        )
                         .successHandler(oauth2AuthenticationSuccessHandler)
                 );
 
@@ -48,6 +64,7 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 }
+
 
 
 

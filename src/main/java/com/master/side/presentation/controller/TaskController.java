@@ -2,6 +2,7 @@ package com.master.side.presentation.controller;
 
 import com.master.side.application.dto.CombinedTaskBoardCommentDto;
 import com.master.side.application.service.TaskService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Slf4j
 public class TaskController {
 
     private final TaskService taskService;
