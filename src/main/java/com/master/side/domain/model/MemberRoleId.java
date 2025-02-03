@@ -2,21 +2,21 @@ package com.master.side.domain.model;
 
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 
 public class MemberRoleId implements Serializable {
 
-    private Long memberId;
-    private Long roleId;
+    private UUID memberId;
+    private UUID roleId;
 
     public MemberRoleId() {
     }
 
-    public MemberRoleId(Long memberId, Long roleId) {
+    public MemberRoleId(UUID memberId, UUID roleId) {
         this.memberId = memberId;
         this.roleId = roleId;
     }
 
-    // equals and hashCode methods
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

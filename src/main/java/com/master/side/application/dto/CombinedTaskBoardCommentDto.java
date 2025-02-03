@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ import java.util.List;
 @Builder
 public class CombinedTaskBoardCommentDto {
     // Task 정보
-    private Long taskId;
+    private UUID taskId;
     private String taskTitle;
     private String taskDescription;
     private LocalDateTime taskStartDate;
@@ -24,7 +25,7 @@ public class CombinedTaskBoardCommentDto {
     private LocalDateTime taskUpdatedAt;
 
     // Board 정보
-    private Long boardId;
+    private UUID boardId;
     private String boardTitle;
     private String boardContent;
     private Integer boardViewCount;
@@ -44,7 +45,7 @@ public class CombinedTaskBoardCommentDto {
     @AllArgsConstructor
     @Builder
     public static class CommentDto {
-        private Long commentId;
+        private UUID commentId;
         private String commentContent;
         private String commenterUsername;
         private LocalDateTime commentCreatedAt;

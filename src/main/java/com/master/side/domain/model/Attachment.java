@@ -1,12 +1,9 @@
 package com.master.side.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.*;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
 @Table(name = "attachment")
@@ -17,8 +14,8 @@ import java.sql.Timestamp;
 public class Attachment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "file_url", nullable = false, length = 255)
     private String fileUrl;
@@ -38,10 +35,4 @@ public class Attachment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "fk_attachment_comment"))
     private Comment comment;
-
-    public Attachment() {
-    }
-
-    // Getters and setters
-    // ... (omitted for brevity)
 }

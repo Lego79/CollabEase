@@ -3,6 +3,9 @@ package com.master.side.domain.repository;
 import com.master.side.domain.model.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CommentRepository extends JpaRepository<Comment, Long> {
-    // 추가 쿼리 메서드 선언 가능
+import java.util.List;
+import java.util.UUID;
+
+public interface CommentRepository extends JpaRepository<Comment, UUID> {
+    List<Comment> findByBoardIdAndIsDeletedFalse(UUID boardId);
 }

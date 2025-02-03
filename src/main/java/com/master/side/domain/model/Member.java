@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "member", uniqueConstraints = {
@@ -26,9 +27,9 @@ import java.util.List;
 public class Member implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "member_id")
-    private Long memberId;
+    private UUID memberId;
 
     @Column(name = "username", nullable = false, length = 255)
     private String username;
@@ -57,29 +58,30 @@ public class Member implements UserDetails {
     @Column(length = 255)
     private String address;
 
-    // 연관관계: 한 명의 Member가 여러 Board를 작성할 수 있음
+    // 연관관계: 한 명의 Member가 여러 Board, Comment, Notification, Task를 가질 수 있음
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Board> boards;
 
-    // 연관관계: 한 명의 Member가 여러 Comment를 작성할 수 있음
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Comment> comments;
 
-    // 연관관계: 한 명의 Member가 여러 Notification을 가질 수 있음
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Notification> notifications;
 
-    // 연관관계: 한 명의 Member가 여러 Task를 가질 수 있음
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<Task> tasks;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<String> roles = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Arrays.stream(this.getRoles().toArray(new String[0]))
@@ -90,30 +92,16 @@ public class Member implements UserDetails {
     public String getPassword() {
         return this.password;
     }
-
     @Override
     public String getUsername() {
         return this.username;
     }
-
-
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
+    public boolean isAccountNonExpired() { return true; }
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
+    public boolean isAccountNonLocked() { return true; }
     @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
+    public boolean isCredentialsNonExpired() { return true; }
     @Override
-    public boolean isEnabled() {
-        return true;
-    }
+    public boolean isEnabled() { return true; }
 }

@@ -2,9 +2,9 @@ package com.master.side.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "board")
@@ -16,8 +16,8 @@ import java.util.List;
 public class Board {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     // Many Boards belong to one Member.
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,9 +47,7 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments;
 
-//    public Board() {
-//    }
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted = false;
 
-    // Getters and setters
-    // ... (omitted for brevity)
 }

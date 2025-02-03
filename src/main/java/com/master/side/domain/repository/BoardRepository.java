@@ -3,6 +3,9 @@ package com.master.side.domain.repository;
 import com.master.side.domain.model.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BoardRepository extends JpaRepository<Board, Long> {
-    // 추가 쿼리 메서드 선언 가능
+import java.util.List;
+import java.util.UUID;
+
+public interface BoardRepository extends JpaRepository<Board, UUID> {
+    List<Board> findAllByIsDeletedFalse();
 }
