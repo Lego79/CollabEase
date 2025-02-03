@@ -15,20 +15,15 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-    // CREATE
     @PostMapping
     public Comment createComment(
             @RequestParam UUID boardId,
             @RequestParam String content
     ) {
-        // 로그인 Member는 보통 SecurityContextHolder 등으로 가져옴 (아래는 예시)
-        Member member = new Member();
-        member.setMemberId(UUID.randomUUID()); // 실제 로직 대체
-
-        return commentService.createComment(boardId, member, content);
+        // Service에서 SecurityContextHelper를 통해 User 식별자를 가져옴
+        return commentService.createComment(boardId, content);
     }
 
-    // SOFT DELETE
     @DeleteMapping("/{commentId}")
     public void softDeleteComment(@PathVariable UUID commentId) {
         commentService.softDeleteComment(commentId);

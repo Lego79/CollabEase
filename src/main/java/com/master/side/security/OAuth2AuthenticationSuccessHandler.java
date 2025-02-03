@@ -15,6 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+/**
+ * OAuth2 로그인 성공 시, JwtUtil로 토큰을 생성하고 프론트엔드로 리다이렉트하는 핸들러
+ */
 @Component
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
@@ -33,24 +36,22 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                                         HttpServletResponse response,
                                         Authentication authentication)
             throws IOException, ServletException {
-        log.info("OAuth2 로그인 성공 핸들러 진입");
+        log.info("[OAuth2AuthenticationSuccessHandler] 소셜 로그인 성공 핸들러 진입");
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
-        log.info("OAuth2 사용자 - email: {}, name: {}", email, name);
+        log.info("[OAuth2AuthenticationSuccessHandler] OAuth2 사용자 - email: {}, name: {}", email, name);
 
-        // 데이터베이스에서 회원을 조회하거나 신규 등록
         Member member = memberService.processOAuthPostLogin(email, name);
-        log.info("Member 처리 완료: {}", member);
+        log.info("[OAuth2AuthenticationSuccessHandler] Member 처리 완료: {}", member);
 
-        // JWT 토큰 생성 (여기서는 access token만 생성)
+        // JwtUtil로 토큰 생성 (이제 토큰에 "auth" 클레임도 포함됨)
         String token = jwtUtil.generateToken(member.getEmail());
-        log.info("JWT 토큰 생성: {}", token);
+        log.info("[OAuth2AuthenticationSuccessHandler] JWT 토큰 생성: {}", token);
 
-        // 프론트엔드의 /board 페이지로 리다이렉트하면서, 토큰을 쿼리 파라미터로 전달
         String redirectUrl = "http://localhost:8888/oauth-redirect?token=" + token;
-        log.info("프론트엔드로 리다이렉트: {}", redirectUrl);
+        log.info("[OAuth2AuthenticationSuccessHandler] 프론트엔드 리다이렉트 URL: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
     }
 }

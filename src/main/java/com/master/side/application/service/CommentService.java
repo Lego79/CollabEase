@@ -5,6 +5,8 @@ import com.master.side.domain.model.Comment;
 import com.master.side.domain.model.Member;
 import com.master.side.domain.repository.BoardRepository;
 import com.master.side.domain.repository.CommentRepository;
+import com.master.side.domain.repository.MemberRepository;
+import com.master.side.security.util.SecurityContextHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,8 +23,15 @@ public class CommentService {
     private CommentRepository commentRepository;
     @Autowired
     private BoardRepository boardRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
-    public Comment createComment(UUID boardId, Member member, String content) {
+    public Comment createComment(UUID boardId, String content) {
+        // 현재 로그인한 사용자 식별자
+        UUID currentUserId = SecurityContextHelper.getCurrentUserId();
+        Member member = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
         if (board.isDeleted()) {
@@ -38,6 +47,7 @@ public class CommentService {
                 .createdAt(Timestamp.from(Instant.now()))
                 .updatedAt(Timestamp.from(Instant.now()))
                 .build();
+
         return commentRepository.save(comment);
     }
 
@@ -50,6 +60,4 @@ public class CommentService {
             commentRepository.save(comment);
         }
     }
-
-    // 필요하다면 updateComment, getCommentsByBoardId 등등 작성
 }

@@ -6,6 +6,8 @@ import com.master.side.application.dto.UpdateBoardRequest;
 import com.master.side.domain.model.Board;
 import com.master.side.domain.model.Member;
 import com.master.side.domain.repository.BoardRepository;
+import com.master.side.domain.repository.MemberRepository;
+import com.master.side.security.util.SecurityContextHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,16 +17,23 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 @Service
 @Transactional
 public class BoardService {
 
     @Autowired
     private BoardRepository boardRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
-    // CREATE
-    public BoardDto createBoard(Member member, CreateBoardRequest request) {
+    public BoardDto createBoard(CreateBoardRequest request) {
+        // 여기서 현재 로그인한 사용자의 UUID를 가져옴
+        UUID currentUserId = SecurityContextHelper.getCurrentUserId();
+
+        // DB에서 Member 엔티티 조회
+        Member member = memberRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
         Board board = Board.builder()
                 .id(UUID.randomUUID())
                 .member(member)
@@ -35,11 +44,11 @@ public class BoardService {
                 .updatedAt(Timestamp.from(Instant.now()))
                 .isDeleted(false)
                 .build();
+
         Board saved = boardRepository.save(board);
         return mapToDto(saved);
     }
 
-    // UPDATE
     public BoardDto updateBoard(UUID boardId, UpdateBoardRequest request) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
@@ -51,12 +60,11 @@ public class BoardService {
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
         board.setUpdatedAt(Timestamp.from(Instant.now()));
-        Board updated = boardRepository.save(board);
 
+        Board updated = boardRepository.save(board);
         return mapToDto(updated);
     }
 
-    // SOFT DELETE
     public void softDeleteBoard(UUID boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
@@ -65,15 +73,14 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    // READ (목록)
     public List<BoardDto> getAllBoards() {
+        // isDeleted = false 인 것만 조회
         List<Board> boards = boardRepository.findAllByIsDeletedFalse();
         return boards.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    // 매핑 메서드
     private BoardDto mapToDto(Board board) {
         return BoardDto.builder()
                 .id(board.getId())
