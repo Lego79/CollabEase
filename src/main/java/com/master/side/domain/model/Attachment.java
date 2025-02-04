@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.sql.Timestamp;
 import java.util.UUID;
-
 @Entity
 @Table(name = "attachment")
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Attachment {
@@ -23,16 +23,20 @@ public class Attachment {
     @Column(name = "file_name", nullable = false, length = 255)
     private String fileName;
 
-    @Column(name = "uploaded_at", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    @Column(name = "uploaded_at", nullable = false)
+    @org.hibernate.annotations.CreationTimestamp
+
     private Timestamp uploadedAt;
 
-    // Many Attachments might belong to a Board.
+
+
+    // Attachment : Board = N : 1
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id", foreignKey = @ForeignKey(name = "fk_attachment_board"))
+    @JoinColumn(name = "board_id")
     private Board board;
 
-    // Many Attachments might belong to a Comment.
+    // Attachment : Comment = N : 1
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id", foreignKey = @ForeignKey(name = "fk_attachment_comment"))
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 }

@@ -1,6 +1,7 @@
 package com.master.side.presentation.controller;
 
 import com.master.side.application.dto.CombinedTaskBoardCommentDto;
+import com.master.side.application.dto.TaskResponseDto;
 import com.master.side.application.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -31,12 +33,19 @@ public class TaskController {
         return ResponseEntity.ok(tasks);
     }
 
+    @GetMapping("/task-data")
+    public ResponseEntity<List<TaskResponseDto>> getAllTaskData() {
+        List<TaskResponseDto> tasks = taskService.getAllTaskData();
+        return ResponseEntity.ok(tasks);
+    }
+
+
     /**
      * 단일 Task 조회
      */
     @GetMapping("/{taskId}")
-    public ResponseEntity<CombinedTaskBoardCommentDto> getTaskById(@PathVariable("taskId") Long taskId) {
-        CombinedTaskBoardCommentDto task = taskService.getCombinedDataByTaskId(taskId);
+    public ResponseEntity<List<CombinedTaskBoardCommentDto>> getTaskById(@PathVariable("taskId") UUID taskId) {
+        List<CombinedTaskBoardCommentDto> task = taskService.getCombinedDataByTaskId(taskId);
         return ResponseEntity.ok(task);
     }
 

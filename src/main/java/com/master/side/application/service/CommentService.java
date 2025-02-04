@@ -43,7 +43,7 @@ public class CommentService {
                 .board(board)
                 .member(member)
                 .content(content)
-                .isDeleted(false)
+                .deleted(false)
                 .createdAt(Timestamp.from(Instant.now()))
                 .updatedAt(Timestamp.from(Instant.now()))
                 .build();

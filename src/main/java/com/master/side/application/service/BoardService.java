@@ -5,48 +5,57 @@ import com.master.side.application.dto.CreateBoardRequest;
 import com.master.side.application.dto.UpdateBoardRequest;
 import com.master.side.domain.model.Board;
 import com.master.side.domain.model.Member;
+import com.master.side.domain.model.Task;
 import com.master.side.domain.repository.BoardRepository;
 import com.master.side.domain.repository.MemberRepository;
+import com.master.side.domain.repository.TaskRepository;
 import com.master.side.security.util.SecurityContextHelper;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
 @Service
 @Transactional
 public class BoardService {
 
-    @Autowired
-    private BoardRepository boardRepository;
-    @Autowired
-    private MemberRepository memberRepository;
+    private final BoardRepository boardRepository;
+    private final TaskRepository taskRepository;
+    private final MemberRepository memberRepository;
 
+    public BoardService(BoardRepository boardRepository, TaskRepository taskRepository, MemberRepository memberRepository) {
+        this.boardRepository = boardRepository;
+        this.taskRepository = taskRepository;
+        this.memberRepository = memberRepository;
+    }
+
+    // createBoard 메서드 수정: 요청에서 Task ID를 받아 Task 엔티티와 매핑하여 Board 생성
     public BoardDto createBoard(CreateBoardRequest request) {
-        // 여기서 현재 로그인한 사용자의 UUID를 가져옴
+
         UUID currentUserId = SecurityContextHelper.getCurrentUserId();
 
         // DB에서 Member 엔티티 조회
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
+        // 요청에 포함된 Task ID로 Task 엔티티 조회
+        Task task = taskRepository.findById(request.getTaskId())
+                .orElseThrow(() -> new IllegalArgumentException("Task not found"));
+
+        // Board 생성 시, task 필드를 함께 할당 (즉, 이 Board가 해당 Task에 종속됨)
         Board board = Board.builder()
-                .id(UUID.randomUUID())
-                .member(member)
                 .title(request.getTitle())
+                .member(member)
                 .content(request.getContent())
-                .viewCount(0)
-                .createdAt(Timestamp.from(Instant.now()))
-                .updatedAt(Timestamp.from(Instant.now()))
-                .isDeleted(false)
+                .task(task)  // Task와 연결
+                .deleted(false)
                 .build();
 
-        Board saved = boardRepository.save(board);
-        return mapToDto(saved);
+        boardRepository.save(board);
+
+        return BoardDto.fromEntity(board);
     }
 
     public BoardDto updateBoard(UUID boardId, UpdateBoardRequest request) {
@@ -59,7 +68,7 @@ public class BoardService {
 
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
-        board.setUpdatedAt(Timestamp.from(Instant.now()));
+        board.setUpdatedAt(java.sql.Timestamp.from(java.time.Instant.now()));
 
         Board updated = boardRepository.save(board);
         return mapToDto(updated);
@@ -69,13 +78,13 @@ public class BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
         board.setDeleted(true);
-        board.setUpdatedAt(Timestamp.from(Instant.now()));
+        board.setUpdatedAt(java.sql.Timestamp.from(java.time.Instant.now()));
         boardRepository.save(board);
     }
 
     public List<BoardDto> getAllBoards() {
         // isDeleted = false 인 것만 조회
-        List<Board> boards = boardRepository.findAllByIsDeletedFalse();
+        List<Board> boards = boardRepository.findAllByDeletedFalse();
         return boards.stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
@@ -87,7 +96,7 @@ public class BoardService {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .viewCount(board.getViewCount())
-                .isDeleted(board.isDeleted())
+                .deleted(board.isDeleted())
                 .build();
     }
 }

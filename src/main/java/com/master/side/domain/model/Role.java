@@ -1,20 +1,18 @@
 package com.master.side.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "role", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "role_name")
-})
+@Table(name = "role",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "role_name")
+        })
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Role {
@@ -28,14 +26,4 @@ public class Role {
 
     @Column(length = 255)
     private String description;
-
-    // One Role might be linked to many MemberRoles
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MemberRole> memberRoles;
-
-    public Role() {
-    }
-
-    // Getters and setters
-    // ... (omitted for brevity)
 }

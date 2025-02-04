@@ -3,22 +3,18 @@ package com.master.side.domain.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
-@Table(name = "member", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "nickname"),
-        @UniqueConstraint(columnNames = "username")
-})
+@Table(name = "member",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = "email"),
+                @UniqueConstraint(columnNames = "nickname"),
+                @UniqueConstraint(columnNames = "username")
+        })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,7 +27,7 @@ public class Member implements UserDetails {
     @Column(name = "member_id")
     private UUID memberId;
 
-    @Column(name = "username", nullable = false, length = 255)
+    @Column(nullable = false, length = 255)
     private String username;
 
     @Column(name = "password", nullable = false, length = 255)
@@ -49,49 +45,61 @@ public class Member implements UserDetails {
     @Column(nullable = false, length = 255)
     private String email;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    @Column(name = "created_at", updatable = false)
+    @org.hibernate.annotations.CreationTimestamp
     private Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
+    // 수정 시점을 자동으로 세팅 (Hibernate)
+    @Column(name = "updated_at")
+    @org.hibernate.annotations.UpdateTimestamp
     private Timestamp updatedAt;
 
     @Column(length = 255)
     private String address;
 
-    // 연관관계: 한 명의 Member가 여러 Board, Comment, Notification, Task를 가질 수 있음
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
+
+    // === 연관관계 설정 ===
+
+    // Member ↔ Role : ManyToMany
+    // (DDL에 member_roles 테이블이 있으나, "member_member_id"나 "roles" 컬럼이 추가로 존재)
+    // 일반적인 ManyToMany라면 아래처럼 @JoinTable을 써도 되고,
+    // 혹은 별도 엔티티(MemberRole)를 만들어 OneToMany/ManyToOne으로 풀어낼 수도 있습니다.
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "member_roles",
+            joinColumns = @JoinColumn(name = "member_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    // One Member to Many Board
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
     private List<Board> boards;
 
+    // One Member to Many Task
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
-    private List<Notification> notifications;
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
     private List<Task> tasks;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    // One Member to Many Comment
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Builder.Default
-    private List<String> roles = new ArrayList<>();
+    // One Member to Many Notification
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
 
+    // === Spring Security UserDetails 구현 ===
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Arrays.stream(this.getRoles().toArray(new String[0]))
-                .map(SimpleGrantedAuthority::new)
-                .toList();
+        // 권한 매핑 로직: RoleName을 SimpleGrantedAuthority 등으로 변환
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Role r : this.roles) {
+            authorities.add(new org.springframework.security.core.authority.SimpleGrantedAuthority(r.getRoleName()));
+        }
+        return authorities;
     }
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
+
     @Override
     public String getUsername() {
         return this.username;
@@ -99,7 +107,7 @@ public class Member implements UserDetails {
     @Override
     public boolean isAccountNonExpired() { return true; }
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked()  { return true; }
     @Override
     public boolean isCredentialsNonExpired() { return true; }
     @Override

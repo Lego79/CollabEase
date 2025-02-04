@@ -16,6 +16,8 @@ public class BoardController {
     @Autowired
     private BoardService boardService;
 
+
+
     // CREATE
     @PostMapping
     public BoardDto createBoard(@RequestBody CreateBoardRequest request) {

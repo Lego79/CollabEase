@@ -6,14 +6,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Builder
 public class TaskResponseDto {
-    private Long taskId;
-    private Long memberId;
+    private UUID taskId;
+    private UUID memberId;
     private String username;
     private String nickName;
     private String title;
@@ -24,8 +25,8 @@ public class TaskResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public TaskResponseDto(Long taskId,
-                           Long memberId,
+    public TaskResponseDto(UUID taskId,
+                           UUID memberId,
                            String username,
                            String nickName,
                            String title,

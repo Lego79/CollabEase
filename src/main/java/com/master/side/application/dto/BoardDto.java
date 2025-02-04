@@ -1,5 +1,6 @@
 package com.master.side.application.dto;
 
+import com.master.side.domain.model.Board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,14 @@ public class BoardDto {
     private String title;
     private String content;
     private Integer viewCount;
-    private boolean isDeleted;
-    // 등등 필요한 필드
-}
+    private boolean deleted;
+    // 정적 메서드로 정의
+    public static BoardDto fromEntity(Board board) {
+        return BoardDto.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .viewCount(board.getViewCount())
+                .deleted(board.isDeleted())
+                .build();
+    }}
