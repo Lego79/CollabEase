@@ -4,11 +4,10 @@ import com.master.side.application.dto.BoardDto;
 import com.master.side.application.dto.CreateBoardRequest;
 import com.master.side.application.dto.UpdateBoardRequest;
 import com.master.side.application.service.BoardService;
+import com.master.side.security.CheckCurrentUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,16 +24,10 @@ public class BoardController {
 
     // CREATE
     @PostMapping
+    @CheckCurrentUser  // 이 어노테이션이 붙으면, AOP Aspect에서 현재 사용자 검증 후 메서드가 실행됩니다.
     public ResponseEntity<BoardDto> createBoard(@RequestBody CreateBoardRequest request) {
-        BoardDto createdBoard = boardService.createBoard(request);
-
-        // 새로 생성된 Board의 URI를 생성 (예: /api/board/{boardId})
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{boardId}")
-                .buildAndExpand(createdBoard.getId()) // DTO에 boardId가 포함되어 있다고 가정
-                .toUri();
-
-        return ResponseEntity.created(location).body(createdBoard);
+        BoardDto board = boardService.createBoard(request);
+        return ResponseEntity.ok(board);
     }
 
     // UPDATE

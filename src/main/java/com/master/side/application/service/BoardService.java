@@ -34,6 +34,13 @@ public class BoardService {
     // createBoard 메서드 수정: 요청에서 Task ID를 받아 Task 엔티티와 매핑하여 Board 생성
     public BoardDto createBoard(CreateBoardRequest request) {
 
+        // 보드 작성, 주인이 작성,
+        //스티키 세션, 세션에 활성화 되어있는 jwt token 식별하는 코드,
+        //컨트롤러에서 validation을 통과하면, 이 코드가 실행됨 @Valid
+        //보드 오기 전에, 현재 로그인한 사용자 식별자 확인후 로직 실행,
+        //앞으로도 반복 될 코드 //        Member member = memberRepository.findById(currentUserId)
+        // 반복을 줄일 수 있는 방법 찾아볼 것- aop로 빼는게 맞음
+
         UUID currentUserId = SecurityContextHelper.getCurrentUserId();
 
         // DB에서 Member 엔티티 조회
