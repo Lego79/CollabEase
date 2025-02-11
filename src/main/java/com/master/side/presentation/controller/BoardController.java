@@ -30,6 +30,8 @@ public class BoardController {
         return ResponseEntity.ok(board);
     }
 
+    // 이 어노테이션이 붙으면, AOP Aspect에서 현재 사용자 검증 후 메서드가 실행됩니다.
+
     // UPDATE
     @PutMapping("/{boardId}")
     public ResponseEntity<BoardDto> updateBoard(@PathVariable UUID boardId,
