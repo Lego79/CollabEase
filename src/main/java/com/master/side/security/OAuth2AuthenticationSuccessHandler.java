@@ -50,7 +50,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String token = jwtUtil.generateToken(member.getEmail());
         log.info("[OAuth2AuthenticationSuccessHandler] JWT 토큰 생성: {}", token);
 
-        String redirectUrl = "http://localhost:8888/oauth-redirect?token=" + token;
+        String redirectUrl = "http://localhost:5173/oauth-redirect?token=" + token;
         log.info("[OAuth2AuthenticationSuccessHandler] 프론트엔드 리다이렉트 URL: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
     }
