@@ -55,6 +55,7 @@ public class CombinedTaskBoardCommentDto {
         private UUID commentId;
         private String commentContent;
         private String commenterUsername;
+        private String commenterNickname;
         private LocalDateTime commentCreatedAt;
         private List<CommentDto> replies;
     }

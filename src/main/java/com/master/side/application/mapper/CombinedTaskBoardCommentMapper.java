@@ -58,6 +58,7 @@ public class CombinedTaskBoardCommentMapper {
                 .commentId(comment.getId())
                 .commentContent(comment.getContent())
                 .commenterUsername(comment.getMember().getUsername())
+                .commenterNickname(comment.getMember().getNickname())
                 .commentCreatedAt(comment.getCreatedAt().toLocalDateTime())
                 .replies(comment.getReplies().stream()
                         .map(CombinedTaskBoardCommentMapper::toCommentDto)

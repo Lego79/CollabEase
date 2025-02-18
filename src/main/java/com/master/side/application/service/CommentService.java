@@ -102,4 +102,9 @@ public class CommentService {
             commentRepository.save(comment);
         }
     }
+
+    public Comment findCommentById(UUID commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+    }
 }
