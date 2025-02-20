@@ -1,7 +1,10 @@
 package com.master.side.common.exception;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 
+@Getter
 public class ErrorResponse {
 
     private String code;          // ErrorCode에서 온 식별 코드
@@ -14,16 +17,5 @@ public class ErrorResponse {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getter/Setter 혹은 lombok @Data 사용
-    public String getCode() {
-        return code;
-    }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
 }

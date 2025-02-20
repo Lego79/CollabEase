@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // 예) 본인이 작성한 글이 아닌데 삭제하려 할 경우
-    FORBIDDEN_DELETE("FORBIDDEN_DELETE", HttpStatus.FORBIDDEN, "본인이 작성한 글만 삭제할 수 있습니다."),
+    FORBIDDEN_DELETE("FORBIDDEN_BOARD_DELETE", HttpStatus.FORBIDDEN, "본인이 작성한 글만 삭제할 수 있습니다."),
 
     // 예) 게시글을 찾지 못한 경우
     NOT_FOUND_BOARD("NOT_FOUND_BOARD", HttpStatus.NOT_FOUND, "해당 게시글을 찾을 수 없습니다."),
