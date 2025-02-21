@@ -17,7 +17,10 @@ public enum ErrorCode {
 
     // 예) 댓글, 작업 등등 계속 추가...
     FORBIDDEN_COMMENT_DELETE("FORBIDDEN_COMMENT_DELETE", HttpStatus.FORBIDDEN, "본인이 작성한 댓글만 삭제할 수 있습니다."),
-    NOT_FOUND_COMMENT("NOT_FOUND_COMMENT", HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다.");
+    NOT_FOUND_COMMENT("NOT_FOUND_COMMENT", HttpStatus.NOT_FOUND, "해당 댓글을 찾을 수 없습니다."),
+
+    TASK_NOT_SELECTED("TASK_NOT_SELECTED", HttpStatus.BAD_REQUEST, "Task를 선택하셔야 합니다.");
+
 
     private final String code;         // 에러 식별 코드 (내부 로깅 또는 클라이언트 에러 핸들링 시 사용)
     private final HttpStatus status;   // HTTP 상태 코드

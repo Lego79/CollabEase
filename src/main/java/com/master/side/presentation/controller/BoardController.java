@@ -4,9 +4,11 @@ import com.master.side.application.dto.BoardDto;
 import com.master.side.application.dto.CreateBoardRequest;
 import com.master.side.application.dto.UpdateBoardRequest;
 import com.master.side.application.service.BoardService;
-import com.master.side.security.CheckCurrentUser;
+import com.master.side.common.constant.ErrorCode;
+import com.master.side.common.exception.CustomException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,20 +24,28 @@ public class BoardController {
         this.boardService = boardService;
     }
 
-    // CREATE
+    // CREATE (게시글 + 파일을 한 번에 업로드)
     @PostMapping
-    @CheckCurrentUser  // 이 어노테이션이 붙으면, AOP Aspect에서 현재 사용자 검증 후 메서드가 실행됩니다.
-    public ResponseEntity<BoardDto> createBoard(@RequestBody CreateBoardRequest request) {
-        BoardDto board = boardService.createBoard(request);
+    public ResponseEntity<BoardDto> createBoard(
+            // JSON으로 들어오는 게시글 정보
+            @RequestPart("boardData") CreateBoardRequest request,
+            // 첨부파일은 필수가 아니므로 required = false
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
+        // task가 선택되지 않은 경우 예외 발생
+        if (request.getTaskId() == null) {
+            throw new CustomException(ErrorCode.TASK_NOT_SELECTED);
+        }
+        BoardDto board = boardService.createBoard(request, files);
         return ResponseEntity.ok(board);
     }
 
-    // 이 어노테이션이 붙으면, AOP Aspect에서 현재 사용자 검증 후 메서드가 실행됩니다.
-
     // UPDATE
     @PutMapping("/{boardId}")
-    public ResponseEntity<BoardDto> updateBoard(@PathVariable UUID boardId,
-                                                @RequestBody UpdateBoardRequest request) {
+    public ResponseEntity<BoardDto> updateBoard(
+            @PathVariable UUID boardId,
+            @RequestBody UpdateBoardRequest request
+    ) {
         BoardDto updatedBoard = boardService.updateBoard(boardId, request);
         return ResponseEntity.ok(updatedBoard);
     }

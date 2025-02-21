@@ -1,6 +1,6 @@
 package com.master.side.application.service;
 
-import com.master.side.application.dto.CombinedTaskBoardCommentDto;
+import com.master.side.application.dto.CombinedTaskBoardCommentResponse;
 import com.master.side.application.dto.TaskResponseDto;
 import com.master.side.application.mapper.CombinedTaskBoardCommentMapper;
 import com.master.side.domain.model.Board;
@@ -31,14 +31,14 @@ public class TaskService {
                 .toList();
     }
 
-    public List<CombinedTaskBoardCommentDto> getAllCombinedData() {
+    public List<CombinedTaskBoardCommentResponse> getAllCombinedData() {
         List<Board> boards = boardRepository.findAll();
         return boards.stream()
                 .map(CombinedTaskBoardCommentMapper::toCombinedDto)
                 .toList();
     }
 
-    public List<CombinedTaskBoardCommentDto> getCombinedDataByTaskId(UUID taskId) {
+    public List<CombinedTaskBoardCommentResponse> getCombinedDataByTaskId(UUID taskId) {
         List<Board> boards = boardRepository.findByTaskId(taskId);
         if (boards.isEmpty()) {
             throw new IllegalArgumentException("해당 Task에 해당하는 Board를 찾을 수 없습니다. Task ID: " + taskId);

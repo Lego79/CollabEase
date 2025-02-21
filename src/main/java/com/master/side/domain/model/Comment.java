@@ -53,7 +53,4 @@ public class Comment {
     @Column(name = "is_deleted")
     private boolean deleted;  // Lombok -> isDeleted(), setDeleted()
 
-    // Comment : Attachment = 1 : N (각 Attachment가 comment_id로 연결)
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Attachment> attachments;
 }

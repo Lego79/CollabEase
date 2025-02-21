@@ -1,6 +1,6 @@
 package com.master.side;
 
-import com.master.side.application.dto.CombinedTaskBoardCommentDto;
+import com.master.side.application.dto.CombinedTaskBoardCommentResponse;
 import com.master.side.application.service.TaskService;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
@@ -31,7 +31,7 @@ class NPlusOneTest {
         statistics.clear();
 
         // 서비스 메서드 실행
-        List<CombinedTaskBoardCommentDto> dtos = taskService.getAllCombinedData();
+        List<CombinedTaskBoardCommentResponse> dtos = taskService.getAllCombinedData();
 
         // 쿼리 실행 횟수 확인 (예: 1 ~ 2회 정도가 예상됨)
         long queryCount = statistics.getQueryExecutionCount();

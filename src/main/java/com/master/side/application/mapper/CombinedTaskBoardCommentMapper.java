@@ -1,6 +1,6 @@
 package com.master.side.application.mapper;
 
-import com.master.side.application.dto.CombinedTaskBoardCommentDto;
+import com.master.side.application.dto.CombinedTaskBoardCommentResponse;
 import com.master.side.application.dto.TaskResponseDto;
 import com.master.side.domain.model.Board;
 import com.master.side.domain.model.Comment;
@@ -21,12 +21,12 @@ public class CombinedTaskBoardCommentMapper {
                 .build();
     }
 
-    public static CombinedTaskBoardCommentDto toCombinedDto(Board board) {
+    public static CombinedTaskBoardCommentResponse toCombinedDto(Board board) {
         Task task = board.getTask();
-        // Member 정보는 task에서 가져온다고 가정
-        var member = task.getMember();
+        // Board에 있는 실제 작성자 정보를 사용합니다.
+        var member = board.getMember();
 
-        return CombinedTaskBoardCommentDto.builder()
+        return CombinedTaskBoardCommentResponse.builder()
                 // === Task 정보 ===
                 .taskId(task.getId())
                 .taskTitle(task.getTitle())
@@ -47,14 +47,15 @@ public class CombinedTaskBoardCommentMapper {
                 .comments(board.getComments().stream()
                         .map(CombinedTaskBoardCommentMapper::toCommentDto)
                         .toList())
-                // === 작성자 정보 ===
+                // === 작성자 정보는 Board의 member를 기준으로 합니다. ===
                 .username(member.getUsername())
                 .nickname(member.getNickname())
                 .build();
     }
 
-    public static CombinedTaskBoardCommentDto.CommentDto toCommentDto(Comment comment) {
-        return CombinedTaskBoardCommentDto.CommentDto.builder()
+
+    public static CombinedTaskBoardCommentResponse.CommentDto toCommentDto(Comment comment) {
+        return CombinedTaskBoardCommentResponse.CommentDto.builder()
                 .commentId(comment.getId())
                 .commentContent(comment.getContent())
                 .commenterUsername(comment.getMember().getUsername())

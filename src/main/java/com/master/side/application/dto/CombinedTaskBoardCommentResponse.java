@@ -15,7 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CombinedTaskBoardCommentDto {
+public class CombinedTaskBoardCommentResponse {
 
     // === Task 정보 ===
     private UUID taskId;

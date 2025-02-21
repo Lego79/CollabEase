@@ -12,6 +12,7 @@ import com.master.side.domain.repository.TaskRepository;
 import com.master.side.security.util.SecurityContextHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,26 +25,21 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final TaskRepository taskRepository;
     private final MemberRepository memberRepository;
+    private final AttachmentService attachmentService; // 첨부파일 관련 서비스 DI
 
-    public BoardService(BoardRepository boardRepository, TaskRepository taskRepository, MemberRepository memberRepository) {
+    public BoardService(BoardRepository boardRepository,
+                        TaskRepository taskRepository,
+                        MemberRepository memberRepository,
+                        AttachmentService attachmentService) {
         this.boardRepository = boardRepository;
         this.taskRepository = taskRepository;
         this.memberRepository = memberRepository;
+        this.attachmentService = attachmentService;
     }
 
-    // createBoard 메서드 수정: 요청에서 Task ID를 받아 Task 엔티티와 매핑하여 Board 생성
-    public BoardDto createBoard(CreateBoardRequest request) {
-
-        // 보드 작성, 주인이 작성,
-        //스티키 세션, 세션에 활성화 되어있는 jwt token 식별하는 코드,
-        //컨트롤러에서 validation을 통과하면, 이 코드가 실행됨 @Valid
-        //보드 오기 전에, 현재 로그인한 사용자 식별자 확인후 로직 실행,
-        //앞으로도 반복 될 코드 //        Member member = memberRepository.findById(currentUserId)
-        // 반복을 줄일 수 있는 방법 찾아볼 것- aop로 빼는게 맞음
-
+    public BoardDto createBoard(CreateBoardRequest request, List<MultipartFile> files) {
+        // 현재 로그인한 사용자 정보 조회
         UUID currentUserId = SecurityContextHelper.getCurrentUserId();
-
-        // DB에서 Member 엔티티 조회
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
@@ -51,17 +47,24 @@ public class BoardService {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Board 생성 시, task 필드를 함께 할당 (즉, 이 Board가 해당 Task에 종속됨)
+        // Board 엔티티 생성
         Board board = Board.builder()
                 .title(request.getTitle())
                 .member(member)
                 .content(request.getContent())
-                .task(task)  // Task와 연결
+                .task(task)
                 .deleted(false)
                 .build();
 
+        // 게시글 저장
         boardRepository.save(board);
 
+        // 첨부파일이 있다면 AttachmentService를 통해 저장 처리
+        if (files != null && !files.isEmpty()) {
+            attachmentService.saveAttachments(board, files);
+        }
+
+        // Board 엔티티를 DTO로 변환하여 반환
         return BoardDto.fromEntity(board);
     }
 
@@ -90,7 +93,7 @@ public class BoardService {
     }
 
     public List<BoardDto> getAllBoards() {
-        // isDeleted = false 인 것만 조회
+        // 삭제되지 않은 게시글만 조회
         List<Board> boards = boardRepository.findAllByDeletedFalse();
         return boards.stream()
                 .map(this::mapToDto)

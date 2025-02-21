@@ -1,6 +1,6 @@
 package com.master.side.presentation.controller;
 
-import com.master.side.application.dto.CombinedTaskBoardCommentDto;
+import com.master.side.application.dto.CombinedTaskBoardCommentResponse;
 import com.master.side.application.dto.TaskResponseDto;
 import com.master.side.application.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +28,8 @@ public class TaskController {
      * 전체 Task 목록 조회
      */
     @GetMapping
-    public ResponseEntity<List<CombinedTaskBoardCommentDto>> getAllTasks() {
-        List<CombinedTaskBoardCommentDto> tasks = taskService.getAllCombinedData();
+    public ResponseEntity<List<CombinedTaskBoardCommentResponse>> getAllTasks() {
+        List<CombinedTaskBoardCommentResponse> tasks = taskService.getAllCombinedData();
         return ResponseEntity.ok(tasks);
     }
 
@@ -44,8 +44,8 @@ public class TaskController {
      * 단일 Task 조회
      */
     @GetMapping("/{taskId}")
-    public ResponseEntity<List<CombinedTaskBoardCommentDto>> getTaskById(@PathVariable("taskId") UUID taskId) {
-        List<CombinedTaskBoardCommentDto> task = taskService.getCombinedDataByTaskId(taskId);
+    public ResponseEntity<List<CombinedTaskBoardCommentResponse>> getTaskById(@PathVariable("taskId") UUID taskId) {
+        List<CombinedTaskBoardCommentResponse> task = taskService.getCombinedDataByTaskId(taskId);
         return ResponseEntity.ok(task);
     }
 
