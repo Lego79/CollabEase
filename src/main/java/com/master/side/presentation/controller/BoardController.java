@@ -18,21 +18,28 @@ import java.util.UUID;
 public class BoardController {
 
     private final BoardService boardService;
+    private final FileStorageService fileStorageService; // 파일 저장 관련 서비스
 
-    // 생성자 주입
-    public BoardController(BoardService boardService) {
+    public BoardController(BoardService boardService, FileStorageService fileStorageService) {
         this.boardService = boardService;
+        this.fileStorageService = fileStorageService;
     }
 
-    // CREATE (게시글 + 파일을 한 번에 업로드)
+    // 파일 업로드 전용 엔드포인트
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) {
+        // 파일 용량, 타입 검증 로직 추가 가능
+        String fileUrl = fileStorageService.storeFile(file); // 파일 저장 후 URL 반환
+        return ResponseEntity.ok(fileUrl);
+    }
+
+    // 기존 게시글 생성 API
     @PostMapping
     public ResponseEntity<BoardDto> createBoard(
-            // JSON으로 들어오는 게시글 정보
             @RequestPart("boardData") CreateBoardRequest request,
-            // 첨부파일은 필수가 아니므로 required = false
+            // 첨부파일은 필요시 추가 (혹은 boardData 내에 업로드된 파일 URL을 포함)
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
-        // task가 선택되지 않은 경우 예외 발생
         if (request.getTaskId() == null) {
             throw new CustomException(ErrorCode.TASK_NOT_SELECTED);
         }
