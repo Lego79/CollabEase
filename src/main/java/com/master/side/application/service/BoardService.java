@@ -14,9 +14,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -25,20 +26,19 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final TaskRepository taskRepository;
     private final MemberRepository memberRepository;
-    private final AttachmentService attachmentService; // 첨부파일 관련 서비스 DI
+    private final FileStorageService fileStorageService;
 
     public BoardService(BoardRepository boardRepository,
                         TaskRepository taskRepository,
                         MemberRepository memberRepository,
-                        AttachmentService attachmentService) {
+                        FileStorageService fileStorageService) {
         this.boardRepository = boardRepository;
         this.taskRepository = taskRepository;
         this.memberRepository = memberRepository;
-        this.attachmentService = attachmentService;
+        this.fileStorageService = fileStorageService;
     }
-
     public BoardDto createBoard(CreateBoardRequest request, List<MultipartFile> files) {
-        // 현재 로그인한 사용자 정보 조회
+        // 현재 로그인한 사용자 조회
         UUID currentUserId = SecurityContextHelper.getCurrentUserId();
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
@@ -47,7 +47,7 @@ public class BoardService {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Board 엔티티 생성
+        // Board 엔티티 생성 및 저장
         Board board = Board.builder()
                 .title(request.getTitle())
                 .member(member)
@@ -55,16 +55,15 @@ public class BoardService {
                 .task(task)
                 .deleted(false)
                 .build();
-
-        // 게시글 저장
         boardRepository.save(board);
 
-        // 첨부파일이 있다면 AttachmentService를 통해 저장 처리
+        // 파일 첨부가 있다면 FileStorageService를 통해 저장 처리 (DB에 Files 엔티티 기록)
         if (files != null && !files.isEmpty()) {
-            attachmentService.saveAttachments(board, files);
+            for (MultipartFile file : files) {
+                fileStorageService.storeFile(file, board, member);
+            }
         }
 
-        // Board 엔티티를 DTO로 변환하여 반환
         return BoardDto.fromEntity(board);
     }
 
@@ -78,7 +77,7 @@ public class BoardService {
 
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
-        board.setUpdatedAt(java.sql.Timestamp.from(java.time.Instant.now()));
+        board.setUpdatedAt(Timestamp.from(Instant.now()));
 
         Board updated = boardRepository.save(board);
         return mapToDto(updated);
@@ -88,16 +87,15 @@ public class BoardService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
         board.setDeleted(true);
-        board.setUpdatedAt(java.sql.Timestamp.from(java.time.Instant.now()));
+        board.setUpdatedAt(Timestamp.from(Instant.now()));
         boardRepository.save(board);
     }
 
     public List<BoardDto> getAllBoards() {
-        // 삭제되지 않은 게시글만 조회
         List<Board> boards = boardRepository.findAllByDeletedFalse();
         return boards.stream()
                 .map(this::mapToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private BoardDto mapToDto(Board board) {
