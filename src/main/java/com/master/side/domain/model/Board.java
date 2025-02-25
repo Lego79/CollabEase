@@ -61,4 +61,8 @@ public class Board {
     // 1:N with Attachment
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Attachment> attachments;
+
+    @OneToMany(mappedBy = "board", fetch = FetchType.LAZY)
+    private List<FilesEntity> files;
+
 }

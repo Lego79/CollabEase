@@ -14,7 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;@Service
+
+@Service
 public class FileStorageService {
 
     private final Path fileStorageLocation;
@@ -36,7 +37,7 @@ public class FileStorageService {
      */
     public FileStorageResult storeFile(MultipartFile file, Board board, Member member) {
         String originalFileName = file.getOriginalFilename();
-        String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
+        String fileName = originalFileName;
         try {
             // 저장할 파일의 전체 경로 생성
             Path targetLocation = this.fileStorageLocation.resolve(fileName);

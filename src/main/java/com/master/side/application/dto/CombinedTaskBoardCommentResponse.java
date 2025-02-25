@@ -42,6 +42,9 @@ public class CombinedTaskBoardCommentResponse {
     private String username;
     private String nickname;
 
+    // === 파일 정보 추가 ===
+    private List<FileDto> files;
+
     /**
      * Comment(댓글) 정보를 담는 내부 DTO
      * 대댓글은 replies 필드에 재귀적으로 저장
@@ -58,5 +61,23 @@ public class CombinedTaskBoardCommentResponse {
         private String commenterNickname;
         private LocalDateTime commentCreatedAt;
         private List<CommentDto> replies;
+    }
+
+    /**
+     * 파일 정보를 담는 내부 DTO
+     */
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class FileDto {
+        private UUID fileId;
+        private String fileName;
+        private String fileUrl;
+        private Long size;
+        private String contentType;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 }
