@@ -11,19 +11,6 @@ import java.util.Collections;
 
 public class CombinedTaskBoardCommentMapper {
 
-    public static TaskResponseDto toTaskResponseDto(Task task) {
-        return TaskResponseDto.builder()
-                .taskId(task.getId())
-                .title(task.getTitle())
-                .description(task.getDescription())
-                .startDate(task.getStartDate().toLocalDateTime())
-                .endDate(task.getEndDate() != null ? task.getEndDate().toLocalDateTime() : null)
-                .status(task.getStatus())
-                .createdAt(task.getCreatedAt().toLocalDateTime())
-                .updatedAt(task.getUpdatedAt().toLocalDateTime())
-                .build();
-    }
-
     public static CombinedTaskBoardCommentResponse toCombinedDto(Board board) {
         // Task 정보
         Task task = board.getTask();
@@ -60,6 +47,21 @@ public class CombinedTaskBoardCommentMapper {
                         .toList() : Collections.emptyList())
                 .build();
     }
+
+    public static TaskResponseDto toTaskResponseDto(Task task) {
+        return TaskResponseDto.builder()
+                .taskId(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .startDate(task.getStartDate().toLocalDateTime())
+                .endDate(task.getEndDate() != null ? task.getEndDate().toLocalDateTime() : null)
+                .status(task.getStatus())
+                .createdAt(task.getCreatedAt().toLocalDateTime())
+                .updatedAt(task.getUpdatedAt().toLocalDateTime())
+                .build();
+    }
+
+
 
     public static CombinedTaskBoardCommentResponse.CommentDto toCommentDto(Comment comment) {
         return CombinedTaskBoardCommentResponse.CommentDto.builder()

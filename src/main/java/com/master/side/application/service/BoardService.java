@@ -37,17 +37,15 @@ public class BoardService {
         this.memberRepository = memberRepository;
         this.fileStorageService = fileStorageService;
     }
+
     public BoardDto createBoard(CreateBoardRequest request, List<MultipartFile> files) {
-        // 현재 로그인한 사용자 조회
         UUID currentUserId = SecurityContextHelper.getCurrentUserId();
         Member member = memberRepository.findById(currentUserId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        // 요청에 포함된 Task ID로 Task 엔티티 조회
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found"));
 
-        // Board 엔티티 생성 및 저장
         Board board = Board.builder()
                 .title(request.getTitle())
                 .member(member)
@@ -57,7 +55,7 @@ public class BoardService {
                 .build();
         boardRepository.save(board);
 
-        // 파일 첨부가 있다면 FileStorageService를 통해 저장 처리 (DB에 Files 엔티티 기록)
+        // 파일 첨부 저장
         if (files != null && !files.isEmpty()) {
             for (MultipartFile file : files) {
                 fileStorageService.storeFile(file, board, member);
@@ -67,22 +65,27 @@ public class BoardService {
         return BoardDto.fromEntity(board);
     }
 
-    public BoardDto updateBoard(UUID boardId, UpdateBoardRequest request) {
-        Board board = boardRepository.findById(boardId)
+    // ① updateBoard: 이미 컨트롤러에서 작성자 검증 완료. 여기서는 업데이트만 수행
+    public BoardDto updateBoard(UpdateBoardRequest request, List<MultipartFile> files) {
+        Board board = boardRepository.findById(request.getBoardId())
                 .orElseThrow(() -> new RuntimeException("Board not found"));
-
-        if (board.isDeleted()) {
-            throw new RuntimeException("Board is already deleted");
-        }
 
         board.setTitle(request.getTitle());
         board.setContent(request.getContent());
         board.setUpdatedAt(Timestamp.from(Instant.now()));
 
+        // 새로운 파일 첨부가 있다면 저장
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                fileStorageService.storeFile(file, board, board.getMember());
+            }
+        }
+
         Board updated = boardRepository.save(board);
-        return mapToDto(updated);
+        return BoardDto.fromEntity(updated);
     }
 
+    // ② softDelete
     public void softDeleteBoard(UUID boardId) {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new RuntimeException("Board not found"));
@@ -91,20 +94,5 @@ public class BoardService {
         boardRepository.save(board);
     }
 
-    public List<BoardDto> getAllBoards() {
-        List<Board> boards = boardRepository.findAllByDeletedFalse();
-        return boards.stream()
-                .map(this::mapToDto)
-                .toList();
-    }
 
-    private BoardDto mapToDto(Board board) {
-        return BoardDto.builder()
-                .id(board.getId())
-                .title(board.getTitle())
-                .content(board.getContent())
-                .viewCount(board.getViewCount())
-                .deleted(board.isDeleted())
-                .build();
-    }
 }

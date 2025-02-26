@@ -31,6 +31,7 @@ public class CombinedTaskBoardCommentResponse {
     private UUID boardId;
     private String boardTitle;
     private String boardContent;
+    private boolean isDeleted;
     private Integer boardViewCount;
     private LocalDateTime boardCreatedAt;
     private LocalDateTime boardUpdatedAt;

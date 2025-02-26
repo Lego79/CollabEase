@@ -3,14 +3,17 @@ package com.master.side.application.service;
 import com.master.side.application.dto.CombinedTaskBoardCommentResponse;
 import com.master.side.application.dto.TaskResponseDto;
 import com.master.side.application.mapper.CombinedTaskBoardCommentMapper;
+import com.master.side.domain.model.Board;
 import com.master.side.domain.repository.BoardRepository;
-import com.master.side.domain.repository.FilesRepository;
 import com.master.side.domain.repository.TaskRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -18,12 +21,10 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final BoardRepository boardRepository;
-    private final FilesRepository fileRepository; // 주입
 
-    public TaskService(TaskRepository taskRepository, BoardRepository boardRepository, FilesRepository fileRepository) {
+    public TaskService(TaskRepository taskRepository, BoardRepository boardRepository) {
         this.taskRepository = taskRepository;
         this.boardRepository = boardRepository;
-        this.fileRepository = fileRepository;
     }
 
     public List<TaskResponseDto> getAllTaskData() {
@@ -33,20 +34,20 @@ public class TaskService {
                 .toList();
     }
 
-    public List<CombinedTaskBoardCommentResponse> getAllCombinedData() {
-        var boards = boardRepository.findAll();
-        return boards.stream()
-                .map(CombinedTaskBoardCommentMapper::toCombinedDto)
-                .toList();
+    public Page<CombinedTaskBoardCommentResponse> getAllCombinedDataPaged(int page, int size) {
+        // 1) Pageable 생성 (page: 0-based 인덱스, size: 한 페이지당 개수)
+        //    예) createdAt desc 로 정렬
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // 2) BoardRepository에서 isDeleted=false 인 것만 페이징 조회
+        Page<Board> boardPage = boardRepository.findAllByDeletedFalseOrderByCreatedAtAsc(pageable);
+
+        // 3) 각각의 Board를 CombinedTaskBoardCommentResponse로 변환
+        //    스프링 Data JPA의 map() 사용하면 편리
+        Page<CombinedTaskBoardCommentResponse> resultPage = boardPage.map(CombinedTaskBoardCommentMapper::toCombinedDto);
+
+        return resultPage;
     }
 
-    public List<CombinedTaskBoardCommentResponse> getCombinedDataByTaskId(UUID taskId) {
-        var boards = boardRepository.findByTaskId(taskId);
-        if (boards.isEmpty()) {
-            throw new IllegalArgumentException("해당 Task에 해당하는 Board를 찾을 수 없습니다. Task ID: " + taskId);
-        }
-        return boards.stream()
-                .map(CombinedTaskBoardCommentMapper::toCombinedDto)
-                .toList();
-    }
+
 }

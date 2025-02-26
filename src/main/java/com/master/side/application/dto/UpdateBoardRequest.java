@@ -1,15 +1,16 @@
 package com.master.side.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UpdateBoardRequest {
+    private UUID boardId;
     private String title;
     private String content;
 }
