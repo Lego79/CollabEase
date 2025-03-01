@@ -40,7 +40,7 @@ public class TaskService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // 2) BoardRepository에서 isDeleted=false 인 것만 페이징 조회
-        Page<Board> boardPage = boardRepository.findAllByDeletedFalseOrderByCreatedAtAsc(pageable);
+        Page<Board> boardPage = boardRepository.findAllByDeletedFalseOrderByCreatedAtDesc(pageable);
 
         // 3) 각각의 Board를 CombinedTaskBoardCommentResponse로 변환
         //    스프링 Data JPA의 map() 사용하면 편리

@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface BoardRepository extends JpaRepository<Board, UUID> {
 
     // deleted = false인 데이터를 createdAt 내림차순으로 정렬
-    Page<Board> findAllByDeletedFalseOrderByCreatedAtAsc(Pageable pageable);
+    Page<Board> findAllByDeletedFalseOrderByCreatedAtDesc(Pageable pageable);
 
 }
 
