@@ -14,6 +14,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Spring Security의 Authentication 객체를 사용하여 토큰을
@@ -26,13 +27,18 @@ public class JwtTokenProvider {
     private final Key key;
     private final CustomUserDetailsService customUserDetailsService;
 
+    private final long tokenValidityInMilliseconds;
+
+
     // jwt.secret: 64바이트 이상의 Base64 문자열 (HS512용)
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secretKey,
+            @Value("${jwt.token-validity-in-ms}") long tokenValidityInMilliseconds,
             CustomUserDetailsService customUserDetailsService
     ) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.tokenValidityInMilliseconds = tokenValidityInMilliseconds;
         this.customUserDetailsService = customUserDetailsService;
         log.info("[JwtTokenProvider] Key length = {} bits", keyBytes.length * 8);
     }
@@ -119,4 +125,23 @@ public class JwtTokenProvider {
             return e.getClaims();
         }
     }
+
+    public String createToken(Authentication authentication, Map<String, Object> additionalClaims) {
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Claims claims = Jwts.claims().setSubject(userDetails.getMemberId().toString());
+        claims.putAll(additionalClaims);
+
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + tokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+
+
 }

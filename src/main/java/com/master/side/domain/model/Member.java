@@ -62,16 +62,13 @@ public class Member implements UserDetails {
 
     // === 연관관계 설정 ===
 
-    // Member ↔ Role : ManyToMany
-    // (DDL에 member_roles 테이블이 있으나, "member_member_id"나 "roles" 컬럼이 추가로 존재)
-    // 일반적인 ManyToMany라면 아래처럼 @JoinTable을 써도 되고,
-    // 혹은 별도 엔티티(MemberRole)를 만들어 OneToMany/ManyToOne으로 풀어낼 수도 있습니다.
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "member_roles",
             joinColumns = @JoinColumn(name = "member_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
 
     // One Member to Many Board
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)

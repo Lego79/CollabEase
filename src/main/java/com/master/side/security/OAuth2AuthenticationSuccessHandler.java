@@ -8,12 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * OAuth2 로그인 성공 시, JwtUtil로 토큰을 생성하고 프론트엔드로 리다이렉트하는 핸들러
@@ -26,32 +28,60 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final JwtUtil jwtUtil;
     private final MemberService memberService;
 
-    public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil, MemberService memberService) {
+    private final JwtTokenProvider jwtTokenProvider;
+
+
+
+
+    public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil, MemberService memberService, JwtTokenProvider jwtTokenProvider) {
         this.jwtUtil = jwtUtil;
         this.memberService = memberService;
+        this.jwtTokenProvider = jwtTokenProvider;
+
     }
+// OAuth2AuthenticationSuccessHandler.java
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        Authentication authentication)
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
-        log.info("[OAuth2AuthenticationSuccessHandler] 소셜 로그인 성공 핸들러 진입");
+        Object principal = authentication.getPrincipal();
+        CustomUserDetails userDetails;
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
-        log.info("[OAuth2AuthenticationSuccessHandler] OAuth2 사용자 - email: {}, name: {}", email, name);
+        if (principal instanceof CustomUserDetails) {
+            userDetails = (CustomUserDetails) principal;
+        } else if (principal instanceof org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser) {
+            org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser oidcUser =
+                    (org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser) principal;
+            // OIDC 사용자에서 필요한 정보를 추출합니다.
+            String email = oidcUser.getAttribute("email");
+            String name = oidcUser.getAttribute("name");
 
-        Member member = memberService.processOAuthPostLogin(email, name);
-        log.info("[OAuth2AuthenticationSuccessHandler] Member 처리 완료: {}", member);
+            // MemberService를 통해 해당 이메일과 이름으로 Member를 조회하거나 신규 등록합니다.
+            Member member = memberService.processOAuthPostLogin(email, name);
+            // Member를 CustomUserDetails로 변환합니다.
+            userDetails = new CustomUserDetails(member);
+        } else {
+            throw new IllegalStateException("Unexpected principal type: " + principal.getClass());
+        }
 
-        // JwtUtil로 토큰 생성 (이제 토큰에 "auth" 클레임도 포함됨)
-        String token = jwtUtil.generateToken(member.getEmail());
-        log.info("[OAuth2AuthenticationSuccessHandler] JWT 토큰 생성: {}", token);
+        // 추가 클레임 생성: memberId와 userNickname 정보를 넣습니다.
+        Map<String, Object> additionalClaims = new HashMap<>();
+        additionalClaims.put("memberId", userDetails.getMemberId());
+        additionalClaims.put("userNickname", userDetails.getNickname());
+        additionalClaims.put("auth", "ROLE_USER");
 
+        // 새로운 Authentication 객체 생성하여 CustomUserDetails를 담습니다.
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(userDetails, authentication.getCredentials(), userDetails.getAuthorities());
+
+        // JwtTokenProvider의 createToken 메서드 호출 시, 새 Authentication 객체를 전달합니다.
+        String token = jwtTokenProvider.createToken(newAuth, additionalClaims);
+
+        // 프론트엔드로 리다이렉트 (예시: 쿼리 파라미터에 token 포함)
         String redirectUrl = "http://localhost:5173/oauth-redirect?token=" + token;
-        log.info("[OAuth2AuthenticationSuccessHandler] 프론트엔드 리다이렉트 URL: {}", redirectUrl);
         response.sendRedirect(redirectUrl);
     }
+
+
+
+
 }
