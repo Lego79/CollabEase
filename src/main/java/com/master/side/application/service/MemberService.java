@@ -1,5 +1,6 @@
 package com.master.side.application.service;
 
+import com.master.side.application.dto.MemberResponseDto;
 import com.master.side.domain.model.Member;
 import com.master.side.domain.repository.MemberRepository;
 import jakarta.transaction.Transactional;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,5 +40,17 @@ public class MemberService {
             log.info("신규 회원 등록 완료: {}", savedMember);
             return savedMember;
         });
+    }
+
+    public List<MemberResponseDto> searchChatMembers(String username) {
+        // 검색어 길이가 너무 짧으면 빈 리스트 반환
+        if (username == null || username.trim().length() < 2) {
+            return Collections.emptyList();
+        }
+
+        List<Member> members = memberRepository.findTop20ByUsernameContainingIgnoreCase(username.trim());
+        return members.stream()
+                .map(member -> new MemberResponseDto(member.getMemberId(), member.getUsername()))
+                .collect(Collectors.toList());
     }
 }

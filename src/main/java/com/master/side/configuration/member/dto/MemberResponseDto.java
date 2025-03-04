@@ -1,12 +1,15 @@
-package com.master.side.configuration.member.dto;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data
-@AllArgsConstructor
-public class MemberResponseDto {
-    private String username;
-    private String nickname;
-    private String address;
-}
+//package com.master.side.configuration.member.dto;
+//
+//import lombok.*;
+//
+//import java.util.UUID;
+//
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Builder
+//public class MemberResponseDto {
+//    private UUID memberId;
+//    private String nickname;
+//}
