@@ -68,6 +68,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         Map<String, Object> additionalClaims = new HashMap<>();
         additionalClaims.put("memberId", userDetails.getMemberId());
         additionalClaims.put("userNickname", userDetails.getNickname());
+        additionalClaims.put("userName", userDetails.getUsername());
         additionalClaims.put("auth", "ROLE_USER");
 
         // 새로운 Authentication 객체 생성하여 CustomUserDetails를 담습니다.
