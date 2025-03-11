@@ -75,4 +75,8 @@ public class ChatController {
                                                            @RequestParam(name = "size", defaultValue = "20") int size) {
         return chatService.getConversationMessagesGrouped(conversationId, page, size);
     }
+
+    //채팅착 삭제, 수정, 조회 API 추가
+    //게시글 삭제, 수정, 조회 API 추가
+
 }
